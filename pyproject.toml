@@ -1,0 +1,19 @@
+[project]
+name = "zoomcamp-ideation-tool"
+version = "0.1.0"
+description = "Conversational AI tool to help Zoomcamp students find portfolio project ideas"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.40.0",
+    "pydantic-ai>=0.1.0",
+    "supabase>=2.0.0",
+    "logfire>=2.0.0",
+    "tavily-python>=0.5.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+]

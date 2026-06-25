@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# uv — keep uv.lock committed for reproducibility
+
+# OS
+.DS_Store
+Thumbs.db
