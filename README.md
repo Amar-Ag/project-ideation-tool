@@ -1,18 +1,20 @@
-# 🎯 Zoomcamp Project Ideation Tool
+# 🎯 Project Ideation Tool
 
-A conversational AI tool that helps [DataTalksClub](https://datatalks.club/) Zoomcamp students find a concrete portfolio project idea through a design-thinking interview process.
+A conversational AI tool that helps builders find a concrete portfolio project idea through a design-thinking interview process.
 
-Built from a direct conversation with [Alexey Grigorev](https://github.com/alexeygrigorev) who identified that the blocker for most students isn't the curriculum — it's *"I have the roadmap, what do I actually build?"*
+The tool acts like a UX researcher — interviewing you about your daily work, hobbies, and pain points to surface a real problem worth solving, then handing you a structured project card you can start building from.
 
 ## How It Works
 
-The tool acts like a UX researcher, interviewing the student through one of three paths:
+Three paths depending on where you're starting from:
 
 - **Mode 1 — Personal Problem:** Explores your daily friction, time sinks, and pain points to find a problem worth solving
 - **Mode 2 — Job/Domain:** Researches recurring problems in your target industry and role
 - **Both:** Combines personal discovery with domain targeting
 
-Every conversation ends with a structured **project card** — problem statement, tech stack, success metric, and a one-liner for job interviews.
+The tool adapts to your tech stack — tell it what you know, paste a curriculum, or share a course link, and it grounds every suggestion in tools you can actually use.
+
+Every conversation ends with a structured **project card**: problem statement, tech stack, success metric, and a one-liner for job interviews.
 
 ## Tech Stack
 
@@ -30,8 +32,8 @@ Every conversation ends with a structured **project card** — problem statement
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/Amar-Ag/zoomcamp-ideation-tool.git
-cd zoomcamp-ideation-tool
+git clone https://github.com/Amar-Ag/project-ideation-tool.git
+cd project-ideation-tool
 pip install uv
 uv sync
 ```
@@ -73,7 +75,8 @@ uv run streamlit run src/app.py
 ├── supabase/
 │   └── schema.sql          # Database schema
 ├── .devcontainer/
-│   └── devcontainer.json   # Dev Container for cross-machine consistency
+│   ├── devcontainer.json   # Dev Container config
+│   └── Dockerfile          # Container image with uv
 ├── .github/workflows/
 │   └── keepalive.yml       # Cron to prevent Supabase free-tier pause
 └── pyproject.toml
@@ -81,4 +84,4 @@ uv run streamlit run src/app.py
 
 ## Prior Art
 
-This tool productizes and extends Alexey Grigorev's [design-thinking interview prompt](https://gist.github.com/alexeygrigorev/c1c8dc3ece5cba91e1e381eeba2706c1). If you prefer voice, ChatGPT voice mode works well with that original prompt.
+The interview framework is inspired by [Alexey Grigorev's](https://github.com/alexeygrigorev) design-thinking prompt for helping students find project ideas: [gist](https://gist.github.com/alexeygrigorev/c1c8dc3ece5cba91e1e381eeba2706c1).

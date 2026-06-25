@@ -1,9 +1,11 @@
-"""PydanticAI agent for the Zoomcamp Project Ideation Tool."""
+"""PydanticAI agent for the Project Ideation Tool."""
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
+import httpx
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
@@ -36,10 +38,10 @@ class SessionContext:
 # ---------------------------------------------------------------------------
 
 SYSTEM_PROMPT = """\
-You are a project ideation coach for DataTalksClub Zoomcamp students. Your job is to \
-help a student find a concrete, buildable portfolio project idea through a structured \
-design-thinking interview. You act like a UX researcher — curious, specific, and \
-patient — not like a generic brainstorming bot.
+You are a project ideation coach. Your job is to help someone find a concrete, \
+buildable portfolio project idea through a structured design-thinking interview. \
+You act like a UX researcher — curious, specific, and patient — not like a generic \
+brainstorming bot.
 
 ## YOUR PROCESS
 
@@ -116,7 +118,7 @@ Score the selected idea on 4 criteria:
 - Interest: Does the user personally care about this problem?
 - Usefulness: Would this actually help someone?
 - Data: Is the data available or obtainable?
-- Feasibility: Can a solo student build this in 4-6 weeks?
+- Feasibility: Can a solo builder complete this in 4-6 weeks?
 
 Use a simple High/Medium/Low with a one-line reason for each.
 
@@ -136,7 +138,7 @@ INPUT
 [Specific data sources named]
 
 PROCESSING
-[Specific tools/techniques named — grounded in Zoomcamp curriculum]
+[Specific tools/techniques named — grounded in the user's known tech stack]
 
 OUTPUT
 [Specific artifact described]
@@ -177,6 +179,34 @@ Run Mode 1 Steps 1-3 first. At Step 3, after problem statements are confirmed, a
 Then use Tavily research to filter solution angles toward that domain.
 Steps 4-6 same as Mode 1.
 
+## TECH STACK HANDLING
+
+You do NOT assume what technologies the user knows. Instead:
+
+1. **Early in the conversation** (during Step 1 or when it feels natural), ask: \
+   "What tools and technologies are you comfortable with? Or if you're following a \
+   course or program, you can share a link or paste the curriculum and I'll work with that."
+
+2. **If the user shares a URL**, use the fetch_curriculum tool to read the page and \
+   extract the relevant technologies, tools, and frameworks covered.
+
+3. **If the user lists technologies directly**, use those as the basis for the \
+   PROCESSING section of the project card.
+
+4. **If the user doesn't know or is a beginner**, suggest a practical starter stack: \
+   Python, a simple database (SQLite or PostgreSQL), a lightweight framework \
+   (Streamlit or FastAPI), and one or two libraries relevant to their problem. \
+   Keep it achievable for a solo builder in 4-6 weeks.
+
+5. **When generating the project card**, the PROCESSING section must only reference \
+   tools the user actually knows or is actively learning. Never suggest technologies \
+   they haven't mentioned unless you explain why and confirm they're willing to learn it.
+
+6. **Scope guard**: If the suggested stack is getting too complex for 4-6 weeks of solo \
+   work, say so. Flag things that are out of scope: custom model training from scratch, \
+   Kubernetes, complex frontend frameworks, mobile apps — unless the user has explicit \
+   experience with them.
+
 ## CONVERSATION RULES — FOLLOW THESE STRICTLY
 
 1. Ask ONE question per turn. Occasionally two if closely related. NEVER a list \
@@ -201,14 +231,7 @@ Steps 4-6 same as Mode 1.
    help them zoom out to the general pattern. "Legacy system with no API → extraction → \
    transformation → distribution" is a general pattern that happens everywhere.
 
-7. When you generate the project card, ground the tech stack in the Zoomcamp curriculum:
-   - Data engineering: dbt Core, BigQuery, GCS, Terraform, Kestra, Airflow, Kafka
-   - AI/ML: ChromaDB, pgvector, embedding models, LLM APIs (Groq, OpenAI), RAG, \
-     PydanticAI agents
-   - Serving: Streamlit, FastAPI
-   - NOT in scope: Kubernetes, custom model training, mobile apps, complex frontends
-
-8. The interview line must be specific and personal — connected to their real experience. \
+7. The interview line must be specific and personal — connected to their real experience. \
    "I wanted to learn data engineering" is NOT acceptable. \
    "I was spending 300 hours a year copying data between spreadsheets" IS.
 
@@ -245,7 +268,7 @@ agent = Agent(
 
 
 # ---------------------------------------------------------------------------
-# Tavily research tool (available to the agent for Mode 2)
+# Tools
 # ---------------------------------------------------------------------------
 
 @agent.tool
@@ -263,3 +286,49 @@ async def research_domain(
     """
     results = research_domain_problems(domain, role_type, company_type)
     return format_research_for_prompt(results)
+
+
+@agent.tool
+async def fetch_curriculum(
+    ctx: RunContext[SessionContext],
+    url: str,
+) -> str:
+    """
+    Fetch a course page, curriculum link, or program overview URL and extract
+    the text content. Call this when the user shares a link to their course
+    or learning program so you can identify the technologies and tools they
+    are learning. Returns the extracted text from the page.
+    """
+    try:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+
+            html = response.text
+
+            # Strip script and style tags entirely
+            html = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", html, flags=re.DOTALL | re.IGNORECASE)
+            # Replace block-level tags with newlines
+            html = re.sub(r"<(br|p|div|h[1-6]|li|tr)[^>]*>", "\n", html, flags=re.IGNORECASE)
+            # Strip all remaining HTML tags
+            text = re.sub(r"<[^>]+>", " ", html)
+            # Collapse whitespace
+            text = re.sub(r"[ \t]+", " ", text)
+            text = re.sub(r"\n\s*\n+", "\n\n", text)
+            text = text.strip()
+
+            # Truncate to avoid blowing up context
+            if len(text) > 6000:
+                text = text[:6000] + "\n\n[... truncated — page was very long]"
+
+            return (
+                f"Here is the content from {url}:\n\n{text}\n\n"
+                "Based on this, identify the specific tools, technologies, frameworks, "
+                "and techniques the user is learning. Use these to ground your tech stack "
+                "suggestions in the project card."
+            )
+    except Exception as e:
+        return (
+            f"Could not fetch the URL ({e}). Ask the user to paste the relevant "
+            "parts of their curriculum — the list of tools, technologies, or topics covered."
+        )

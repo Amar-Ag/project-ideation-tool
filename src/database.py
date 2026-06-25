@@ -1,6 +1,6 @@
 """Supabase database operations for sessions, messages, and briefs."""
 
-from __future__ import annotations
+from typing import Any, Optional
 
 from supabase import create_client, Client
 from src.config import SUPABASE_URL, SUPABASE_ANON_KEY
@@ -15,12 +15,12 @@ def get_supabase_client() -> Client:
 # Auth helpers
 # ---------------------------------------------------------------------------
 
-def sign_up(client: Client, email: str, password: str) -> dict:
+def sign_up(client: Client, email: str, password: str) -> Any:
     """Sign up a new user. Returns the auth response."""
     return client.auth.sign_up({"email": email, "password": password})
 
 
-def sign_in(client: Client, email: str, password: str) -> dict:
+def sign_in(client: Client, email: str, password: str) -> Any:
     """Sign in an existing user. Returns the auth response."""
     return client.auth.sign_in_with_password({"email": email, "password": password})
 
@@ -30,7 +30,7 @@ def sign_out(client: Client) -> None:
     client.auth.sign_out()
 
 
-def get_user_id(client: Client) -> str | None:
+def get_user_id(client: Client) -> Optional[str]:
     """Get the current authenticated user's ID."""
     user = client.auth.get_user()
     if user and user.user:
@@ -42,14 +42,14 @@ def get_user_id(client: Client) -> str | None:
 # Session CRUD
 # ---------------------------------------------------------------------------
 
-def create_session(client: Client, user_id: str, mode: str | None = None) -> dict:
+def create_session(client: Client, user_id: str, mode: Optional[str] = None) -> Any:
     """Create a new ideation session."""
     data = {"user_id": user_id, "mode": mode, "status": "active"}
     result = client.table("sessions").insert(data).execute()
     return result.data[0]
 
 
-def get_active_sessions(client: Client, user_id: str) -> list[dict]:
+def get_active_sessions(client: Client, user_id: str) -> list[Any]:
     """Get all active sessions for a user, newest first."""
     result = (
         client.table("sessions")
@@ -62,7 +62,7 @@ def get_active_sessions(client: Client, user_id: str) -> list[dict]:
     return result.data
 
 
-def get_session(client: Client, session_id: str) -> dict | None:
+def get_session(client: Client, session_id: str) -> Any:
     """Get a specific session by ID."""
     result = (
         client.table("sessions")
@@ -88,14 +88,14 @@ def complete_session(client: Client, session_id: str) -> None:
 # Message CRUD
 # ---------------------------------------------------------------------------
 
-def save_message(client: Client, session_id: str, role: str, content: str) -> dict:
+def save_message(client: Client, session_id: str, role: str, content: str) -> Any:
     """Save a single message to the database."""
     data = {"session_id": session_id, "role": role, "content": content}
     result = client.table("messages").insert(data).execute()
     return result.data[0]
 
 
-def load_messages(client: Client, session_id: str) -> list[dict]:
+def load_messages(client: Client, session_id: str) -> list[Any]:
     """Load all messages for a session, ordered chronologically."""
     result = (
         client.table("messages")
@@ -118,7 +118,7 @@ def save_brief(
     project_title: str,
     project_card: str,
     interview_line: str,
-) -> dict:
+) -> Any:
     """Save a generated project card."""
     data = {
         "session_id": session_id,
@@ -131,7 +131,7 @@ def save_brief(
     return result.data[0]
 
 
-def get_brief(client: Client, session_id: str) -> dict | None:
+def get_brief(client: Client, session_id: str) -> Any:
     """Get the brief for a session, if one exists."""
     result = (
         client.table("briefs")

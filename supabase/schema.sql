@@ -1,4 +1,4 @@
--- Zoomcamp Project Ideation Tool — Supabase Schema
+-- Project Ideation Tool — Supabase Schema
 -- Run this in the Supabase SQL Editor after creating your project.
 
 -- Sessions table

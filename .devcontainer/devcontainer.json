@@ -1,5 +1,5 @@
 {
-    "name": "Zoomcamp Ideation Tool",
+    "name": "Project Ideation Tool",
     "build": {
         "dockerfile": "Dockerfile",
         "context": ".."

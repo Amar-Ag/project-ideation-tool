@@ -1,6 +1,4 @@
-"""Streamlit app — Zoomcamp Project Ideation Tool."""
-
-from __future__ import annotations
+"""Streamlit app — Project Ideation Tool."""
 
 import streamlit as st
 from pydantic_ai.messages import ModelRequest, ModelResponse, UserPromptPart, TextPart
@@ -25,7 +23,7 @@ from src.agent import agent, SessionContext
 # ---------------------------------------------------------------------------
 
 st.set_page_config(
-    page_title="Zoomcamp Project Ideator",
+    page_title="Project Ideator",
     page_icon="🎯",
     layout="centered",
 )
@@ -49,7 +47,7 @@ def get_client():
 
 def auth_page():
     """Render the login / signup page."""
-    st.title("🎯 Zoomcamp Project Ideator")
+    st.title("🎯 Project Ideator")
     st.caption("Find a portfolio project idea worth building.")
 
     tab_login, tab_signup = st.tabs(["Log in", "Sign up"])
@@ -174,7 +172,7 @@ def rebuild_pydantic_history(db_messages: list[dict]) -> list:
 
 def chat_page():
     """Main chat interface."""
-    st.title("🎯 Zoomcamp Project Ideator")
+    st.title("🎯 Project Ideator")
 
     # Ensure we have a session
     if "session_id" not in st.session_state:
