@@ -13,6 +13,7 @@ from src.database import (
     get_active_sessions,
     get_session,
     update_session_mode,
+    delete_session,
     save_message,
     load_messages,
 )
@@ -26,6 +27,18 @@ st.set_page_config(
     page_title="Project Ideator",
     page_icon="🎯",
     layout="centered",
+)
+
+# Custom CSS — larger chat text
+st.markdown(
+    """
+    <style>
+    .stChatMessage p, .stChatMessage li {
+        font-size: 1.1rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 # ---------------------------------------------------------------------------
@@ -64,9 +77,13 @@ def auth_page():
                     response = sign_in(client, email, password)
                     st.session_state.auth = response
                     st.session_state.user_id = response.user.id
-                    st.rerun()
                 except Exception as e:
                     st.error(f"Login failed: {e}")
+
+        # Rerun outside the try/except — st.rerun() raises an exception
+        # internally and the except block was swallowing it
+        if "user_id" in st.session_state:
+            st.rerun()
 
     with tab_signup:
         with st.form("signup_form"):
@@ -111,14 +128,33 @@ def session_picker():
 
     if active_sessions:
         st.sidebar.markdown("---")
-        st.sidebar.caption("Resume a session:")
         for s in active_sessions:
+            col_btn, col_del = st.sidebar.columns([4, 1])
+
+            # Build label
             label = f"{s['created_at'][:10]}"
             if s["mode"]:
                 label += f" — {s['mode']}"
-            if st.sidebar.button(label, key=s["id"], use_container_width=True):
-                load_session(s["id"])
-                st.rerun()
+
+            # Highlight current session
+            current = st.session_state.get("session_id") == s["id"]
+            if current:
+                label = f"▶ {label}"
+
+            with col_btn:
+                if st.button(label, key=s["id"], use_container_width=True):
+                    load_session(s["id"])
+                    st.rerun()
+
+            with col_del:
+                if st.button("🗑️", key=f"del_{s['id']}"):
+                    delete_session(client, s["id"])
+                    # If we deleted the current session, clear it
+                    if st.session_state.get("session_id") == s["id"]:
+                        st.session_state.pop("session_id", None)
+                        st.session_state.pop("messages", None)
+                        st.session_state.pop("pydantic_history", None)
+                    st.rerun()
 
     st.sidebar.markdown("---")
     if st.sidebar.button("🚪 Log out", use_container_width=True):
@@ -155,13 +191,9 @@ def rebuild_pydantic_history(db_messages: list[dict]) -> list:
     history = []
     for m in db_messages:
         if m["role"] == "user":
-            history.append(
-                ModelRequest(parts=[UserPromptPart(content=m["content"])])
-            )
+            history.append(ModelRequest(parts=[UserPromptPart(content=m["content"])]))
         elif m["role"] == "assistant":
-            history.append(
-                ModelResponse(parts=[TextPart(content=m["content"])])
-            )
+            history.append(ModelResponse(parts=[TextPart(content=m["content"])]))
     return history
 
 
@@ -174,14 +206,19 @@ def chat_page():
     """Main chat interface."""
     st.title("🎯 Project Ideator")
 
-    # Ensure we have a session
+    # If no session selected, try to load the most recent one
     if "session_id" not in st.session_state:
-        # Auto-create a session on first visit
         client = get_client()
-        new = create_session(client, st.session_state.user_id)
-        st.session_state.session_id = new["id"]
-        st.session_state.messages = []
-        st.session_state.pydantic_history = []
+        active_sessions = get_active_sessions(client, st.session_state.user_id)
+        if active_sessions:
+            # Resume the most recent session
+            load_session(active_sessions[0]["id"])
+        else:
+            # First time user — create their first session
+            new = create_session(client, st.session_state.user_id)
+            st.session_state.session_id = new["id"]
+            st.session_state.messages = []
+            st.session_state.pydantic_history = []
 
     # Initialize messages list if needed
     if "messages" not in st.session_state:
@@ -270,7 +307,9 @@ def get_bot_response(user_input: str | None):
 
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
-                st.caption("This might be a rate limit from Groq. Wait a moment and try again.")
+                st.caption(
+                    "This might be a rate limit from Groq. Wait a moment and try again."
+                )
 
 
 def detect_and_save_mode(response_text: str, session_id: str, client):
@@ -285,9 +324,15 @@ def detect_and_save_mode(response_text: str, session_id: str, client):
         user_msgs = [m for m in st.session_state.messages if m["role"] == "user"]
         if user_msgs:
             first_reply = user_msgs[0]["content"].lower()
-            if any(w in first_reply for w in ["problem", "personal", "solve", "pain", "annoying"]):
+            if any(
+                w in first_reply
+                for w in ["problem", "personal", "solve", "pain", "annoying"]
+            ):
                 update_session_mode(client, session_id, "personal")
-            elif any(w in first_reply for w in ["job", "domain", "career", "industry", "role"]):
+            elif any(
+                w in first_reply
+                for w in ["job", "domain", "career", "industry", "role"]
+            ):
                 update_session_mode(client, session_id, "domain")
             elif any(w in first_reply for w in ["both"]):
                 update_session_mode(client, session_id, "both")

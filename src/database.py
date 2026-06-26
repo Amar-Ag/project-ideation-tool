@@ -15,6 +15,7 @@ def get_supabase_client() -> Client:
 # Auth helpers
 # ---------------------------------------------------------------------------
 
+
 def sign_up(client: Client, email: str, password: str) -> Any:
     """Sign up a new user. Returns the auth response."""
     return client.auth.sign_up({"email": email, "password": password})
@@ -42,6 +43,7 @@ def get_user_id(client: Client) -> Optional[str]:
 # Session CRUD
 # ---------------------------------------------------------------------------
 
+
 def create_session(client: Client, user_id: str, mode: Optional[str] = None) -> Any:
     """Create a new ideation session."""
     data = {"user_id": user_id, "mode": mode, "status": "active"}
@@ -65,11 +67,7 @@ def get_active_sessions(client: Client, user_id: str) -> list[Any]:
 def get_session(client: Client, session_id: str) -> Any:
     """Get a specific session by ID."""
     result = (
-        client.table("sessions")
-        .select("*")
-        .eq("id", session_id)
-        .single()
-        .execute()
+        client.table("sessions").select("*").eq("id", session_id).single().execute()
     )
     return result.data
 
@@ -81,12 +79,20 @@ def update_session_mode(client: Client, session_id: str, mode: str) -> None:
 
 def complete_session(client: Client, session_id: str) -> None:
     """Mark a session as completed."""
-    client.table("sessions").update({"status": "completed"}).eq("id", session_id).execute()
+    client.table("sessions").update({"status": "completed"}).eq(
+        "id", session_id
+    ).execute()
+
+
+def delete_session(client: Client, session_id: str) -> None:
+    """Delete a session and all its messages/briefs (cascade)."""
+    client.table("sessions").delete().eq("id", session_id).execute()
 
 
 # ---------------------------------------------------------------------------
 # Message CRUD
 # ---------------------------------------------------------------------------
+
 
 def save_message(client: Client, session_id: str, role: str, content: str) -> Any:
     """Save a single message to the database."""
@@ -110,6 +116,7 @@ def load_messages(client: Client, session_id: str) -> list[Any]:
 # ---------------------------------------------------------------------------
 # Brief CRUD
 # ---------------------------------------------------------------------------
+
 
 def save_brief(
     client: Client,

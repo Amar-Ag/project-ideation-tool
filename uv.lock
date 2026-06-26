@@ -618,6 +618,23 @@ wheels = [
 ]
 
 [[package]]
+name = "groq"
+version = "1.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0b/3a/31c54e35d694ba9c263939ecae0874c78fc51f22b9fb13d2dab50edf6e3c/groq-1.5.0.tar.gz", hash = "sha256:8648388f8668629490bb0eab11252b4cc43316149fda9c6343e9a9577fe7df88", size = 158239, upload-time = "2026-06-21T22:57:30.202Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ce/c3/cac2aee75198c0382a2e6070619a798de2288e01850abb6e999746bb92e3/groq-1.5.0-py3-none-any.whl", hash = "sha256:a927fd75b4a60cb066c408cb4f9647536caf74e241ea75bc57d1810501b8203f", size = 143690, upload-time = "2026-06-21T22:57:29.213Z" },
+]
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1782,6 +1799,7 @@ dependencies = [
     { name = "httpx" },
     { name = "logfire" },
     { name = "pydantic-ai" },
+    { name = "pydantic-ai-slim", extra = ["groq"] },
     { name = "python-dotenv" },
     { name = "streamlit" },
     { name = "supabase" },
@@ -1799,6 +1817,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "logfire", specifier = ">=2.0.0" },
     { name = "pydantic-ai", specifier = ">=0.1.0" },
+    { name = "pydantic-ai-slim", extras = ["groq"], specifier = ">=2.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
@@ -2117,6 +2136,9 @@ evals = [
 ]
 google = [
     { name = "google-genai" },
+]
+groq = [
+    { name = "groq" },
 ]
 logfire = [
     { name = "logfire", extra = ["httpx"] },
