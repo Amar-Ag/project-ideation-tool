@@ -231,9 +231,18 @@ def chat_page():
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # If conversation is empty, get the bot's opening message
+    # If conversation is empty, show the opening message (no LLM call needed)
     if not st.session_state.messages:
-        get_bot_response(None)
+        opening = (
+            "Hi — I'm going to help you find a project worth building. "
+            "No right answers here. To start: are you building this to solve "
+            "a problem you personally have, to land a job in a specific domain, or both?"
+        )
+        with st.chat_message("assistant"):
+            st.markdown(opening)
+        st.session_state.messages.append({"role": "assistant", "content": opening})
+        client = get_client()
+        save_message(client, st.session_state.session_id, "assistant", opening)
 
     # Chat input
     if user_input := st.chat_input("Type your response..."):
@@ -250,13 +259,8 @@ def chat_page():
         get_bot_response(user_input)
 
 
-def get_bot_response(user_input: str | None):
-    """
-    Run the PydanticAI agent and display + persist the response.
-
-    If user_input is None, this is the opening message (no user prompt yet).
-    The agent will generate its opening question based on the system prompt.
-    """
+def get_bot_response(user_input: str):
+    """Run the PydanticAI agent and display + persist the response."""
     client = get_client()
     session_id = st.session_state.session_id
 
@@ -270,19 +274,9 @@ def get_bot_response(user_input: str | None):
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                # Build the prompt
-                if user_input is None:
-                    # Opening message — ask the agent to introduce itself
-                    prompt = (
-                        "Start a new conversation. This is your first message to the "
-                        "user. Follow Step 0 from your instructions."
-                    )
-                else:
-                    prompt = user_input
-
                 # Run the agent with message history
                 result = agent.run_sync(
-                    prompt,
+                    user_input,
                     message_history=st.session_state.pydantic_history or None,
                     deps=ctx,
                 )
