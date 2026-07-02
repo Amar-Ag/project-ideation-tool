@@ -25,6 +25,7 @@ if LOGFIRE_TOKEN:
 # Dependencies — injected into every agent run
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class SessionContext:
     """Context passed to the agent on each run."""
@@ -256,7 +257,7 @@ If they're vague, tell them: "I need something more specific to work with."
 # ---------------------------------------------------------------------------
 
 model = GroqModel(
-    "llama-3.3-70b-versatile",
+    "qwen/qwen3.6-27b",
     provider=GroqProvider(api_key=GROQ_API_KEY),
 )
 
@@ -270,6 +271,7 @@ agent = Agent(
 # ---------------------------------------------------------------------------
 # Tools
 # ---------------------------------------------------------------------------
+
 
 @agent.tool
 async def research_domain(
@@ -307,9 +309,16 @@ async def fetch_curriculum(
             html = response.text
 
             # Strip script and style tags entirely
-            html = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", html, flags=re.DOTALL | re.IGNORECASE)
+            html = re.sub(
+                r"<(script|style)[^>]*>.*?</\1>",
+                "",
+                html,
+                flags=re.DOTALL | re.IGNORECASE,
+            )
             # Replace block-level tags with newlines
-            html = re.sub(r"<(br|p|div|h[1-6]|li|tr)[^>]*>", "\n", html, flags=re.IGNORECASE)
+            html = re.sub(
+                r"<(br|p|div|h[1-6]|li|tr)[^>]*>", "\n", html, flags=re.IGNORECASE
+            )
             # Strip all remaining HTML tags
             text = re.sub(r"<[^>]+>", " ", html)
             # Collapse whitespace
