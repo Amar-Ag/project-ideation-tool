@@ -1,5 +1,10 @@
 """Streamlit app — Project Ideation Tool."""
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import streamlit as st
 from pydantic_ai.messages import ModelRequest, ModelResponse, UserPromptPart, TextPart
 
