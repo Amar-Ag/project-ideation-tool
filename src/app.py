@@ -1,10 +1,5 @@
 """Streamlit app — Project Ideation Tool."""
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 import streamlit as st
 from pydantic_ai.messages import ModelRequest, ModelResponse, UserPromptPart, TextPart
 
@@ -66,7 +61,11 @@ def get_client():
 def auth_page():
     """Render the login / signup page."""
     st.title("🎯 Project Ideator")
-    st.caption("Find a portfolio project idea worth building.")
+    st.markdown(
+        "An AI-powered interview that helps you find a portfolio project idea "
+        "worth building — grounded in real problems, matched to your tech stack."
+    )
+    st.caption("Log in to start a conversation or pick up where you left off.")
 
     tab_login, tab_signup = st.tabs(["Log in", "Sign up"])
 
@@ -136,10 +135,24 @@ def session_picker():
         for s in active_sessions:
             col_btn, col_del = st.sidebar.columns([4, 1])
 
-            # Build label
+            # Build label — try to show topic from first user message
             label = f"{s['created_at'][:10]}"
             if s["mode"]:
-                label += f" — {s['mode']}"
+                label += f" · {s['mode']}"
+
+            # Get a preview snippet from the session's first user message
+            try:
+                msgs = load_messages(client, s["id"])
+                first_user_msg = next(
+                    (m["content"] for m in msgs if m["role"] == "user"), None
+                )
+                if first_user_msg:
+                    snippet = first_user_msg[:30].strip()
+                    if len(first_user_msg) > 30:
+                        snippet += "…"
+                    label += f"\n_{snippet}_"
+            except Exception:
+                pass
 
             # Highlight current session
             current = st.session_state.get("session_id") == s["id"]
@@ -210,6 +223,9 @@ def rebuild_pydantic_history(db_messages: list[dict]) -> list:
 def chat_page():
     """Main chat interface."""
     st.title("🎯 Project Ideator")
+    st.caption(
+        "Tell me about yourself and I'll help you find a project worth building."
+    )
 
     # If no session selected, try to load the most recent one
     if "session_id" not in st.session_state:
