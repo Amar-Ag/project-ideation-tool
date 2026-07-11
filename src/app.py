@@ -5,6 +5,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+"""Streamlit app — Project Ideation Tool."""
+
 import streamlit as st
 from pydantic_ai.messages import ModelRequest, ModelResponse, UserPromptPart, TextPart
 
@@ -287,6 +289,8 @@ def chat_page():
 
 def get_bot_response(user_input: str):
     """Run the PydanticAI agent and display + persist the response."""
+    import time
+
     client = get_client()
     session_id = st.session_state.session_id
 
@@ -308,12 +312,24 @@ def get_bot_response(user_input: str):
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                # Run the agent with message history
-                result = agent.run_sync(
-                    user_input,
-                    message_history=history or None,
-                    deps=ctx,
-                )
+                # Retry loop for rate limits — Groq free tier resets quickly
+                max_retries = 2
+                # result = None
+                for attempt in range(max_retries + 1):
+                    try:
+                        result = agent.run_sync(
+                            user_input,
+                            message_history=history or None,
+                            deps=ctx,
+                        )
+                        break
+                    except Exception as e:
+                        error_msg = str(e).lower()
+                        is_rate_limit = "rate" in error_msg or "limit" in error_msg
+                        if is_rate_limit and attempt < max_retries:
+                            time.sleep(3)
+                            continue
+                        raise
 
                 # Extract the text response
                 response_text = result.output
@@ -344,7 +360,9 @@ def get_bot_response(user_input: str):
                         "This conversation has gotten too long for the model's context window. Start a new session to continue."
                     )
                 elif "rate" in error_msg or "limit" in error_msg:
-                    st.error("Rate limit hit — wait a moment and try again.")
+                    st.error(
+                        "Rate limit hit after retrying — wait a minute and try again."
+                    )
                 else:
                     st.error(f"Something went wrong: {e}")
 
