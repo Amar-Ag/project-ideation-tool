@@ -297,13 +297,21 @@ def get_bot_response(user_input: str):
         mode=session.get("mode") if session else None,
     )
 
+    # Truncate history to avoid context overflow.
+    # Keep the last 40 messages (~20 turns) — earlier background
+    # questions matter less once problem statements are confirmed.
+    MAX_HISTORY = 40
+    history = st.session_state.pydantic_history or []
+    if len(history) > MAX_HISTORY:
+        history = history[-MAX_HISTORY:]
+
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
                 # Run the agent with message history
                 result = agent.run_sync(
                     user_input,
-                    message_history=st.session_state.pydantic_history or None,
+                    message_history=history or None,
                     deps=ctx,
                 )
 
@@ -326,10 +334,19 @@ def get_bot_response(user_input: str):
                 detect_and_save_mode(response_text, session_id, client)
 
             except Exception as e:
-                st.error(f"Something went wrong: {e}")
-                st.caption(
-                    "This might be a rate limit from Groq. Wait a moment and try again."
-                )
+                error_msg = str(e).lower()
+                if (
+                    "token" in error_msg
+                    or "context" in error_msg
+                    or "length" in error_msg
+                ):
+                    st.error(
+                        "This conversation has gotten too long for the model's context window. Start a new session to continue."
+                    )
+                elif "rate" in error_msg or "limit" in error_msg:
+                    st.error("Rate limit hit — wait a moment and try again.")
+                else:
+                    st.error(f"Something went wrong: {e}")
 
 
 def detect_and_save_mode(response_text: str, session_id: str, client):

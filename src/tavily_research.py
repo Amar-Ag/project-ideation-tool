@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from tavily import TavilyClient
 from src.config import TAVILY_API_KEY
 
@@ -24,9 +26,11 @@ def research_domain_problems(
     """
     client = get_tavily_client()
 
+    year = datetime.now().year
+
     queries = [
-        f"{domain} {role_type} challenges problems 2025",
-        f"{company_type} {domain} data engineering blog pain points",
+        f"{domain} {role_type} challenges problems {year}",
+        f"{company_type} {domain} {role_type} blog pain points",
         f"{domain} {role_type} job posting common requirements skills gap",
     ]
 
@@ -45,11 +49,13 @@ def research_domain_problems(
                 url = result.get("url", "")
                 if url not in seen_urls:
                     seen_urls.add(url)
-                    all_results.append({
-                        "title": result.get("title", ""),
-                        "url": url,
-                        "content": result.get("content", ""),
-                    })
+                    all_results.append(
+                        {
+                            "title": result.get("title", ""),
+                            "url": url,
+                            "content": result.get("content", ""),
+                        }
+                    )
         except Exception as e:
             # Log but don't crash — the bot can fall back to asking the user
             print(f"Tavily search failed for '{query}': {e}")
@@ -65,7 +71,9 @@ def format_research_for_prompt(results: list[dict]) -> str:
     if not results:
         return "No research results found. Ask the user what they've seen companies in this space post about."
 
-    lines = ["Here is what I found from engineering blogs, job postings, and industry content:\n"]
+    lines = [
+        "Here is what I found from engineering blogs, job postings, and industry content:\n"
+    ]
     for i, r in enumerate(results, 1):
         lines.append(f"Source {i}: {r['title']}")
         lines.append(f"URL: {r['url']}")

@@ -175,26 +175,10 @@ Personal connection → stronger interview narrative.
 **Steps 4-6** — Same as Mode 1 (Solution Angles → Scoring → Project Card).
 
 ### Combined ("Both") Path
-
-This path MUST follow this exact sequence — do not skip any step:
-
-1. Run Mode 1 Steps 1-3 (background → lenses → problem statements).
-
-2. MANDATORY DOMAIN QUESTION — After the user confirms the problem statement, you MUST \
-   ask: "What domain or role are you targeting for your next job?" \
-   Do NOT skip this question. Do NOT move to solution angles without it. \
-   Even if the user already mentioned a domain earlier, ask explicitly to confirm.
-
-3. MANDATORY TAVILY RESEARCH — Once the user answers the domain question, use the \
-   research_domain tool to find how this problem shows up in their target domain. \
-   This research must shape the solution angles you present.
-
-4. DOMAIN-FILTERED SOLUTION ANGLES — Present 2-3 solution angles that connect \
-   the user's personal problem to their target domain. Each angle should explain \
-   why this project would resonate with hiring managers in that specific domain.
-
-5. Steps 5-6 same as Mode 1 (Scoring → Project Card). The project card's \
-   PROCESSING section and interview line must reference the target domain.
+Run Mode 1 Steps 1-3 first. At Step 3, after problem statements are confirmed, ask: \
+"What domain or role are you targeting for your next job?"
+Then use Tavily research to filter solution angles toward that domain.
+Steps 4-6 same as Mode 1.
 
 ## TECH STACK HANDLING
 
@@ -210,16 +194,37 @@ You do NOT assume what technologies the user knows. Instead:
 3. **If the user lists technologies directly**, use those as the basis for the \
    PROCESSING section of the project card.
 
-4. **If the user doesn't know or is a beginner**, suggest a practical starter stack: \
-   Python, a simple database (SQLite or PostgreSQL), a lightweight framework \
-   (Streamlit or FastAPI), and one or two libraries relevant to their problem. \
-   Keep it achievable for a solo builder in 4-6 weeks.
+4. **Skill-proof question** — When the user's background suggests a specific field \
+   (AI engineering, data engineering, ML, etc.), ask: "What should this project prove \
+   to an employer about your skills?" This answer shapes which technologies to emphasize \
+   in the project card. A project meant to prove AI engineering skills needs a different \
+   stack than one meant to prove data engineering skills.
 
-5. **When generating the project card**, the PROCESSING section must only reference \
+5. **Domain-aware fallback stacks** — If the user doesn't specify preferences, match \
+   the fallback to their field:
+
+   **AI / ML Engineering:** The stack IS the portfolio signal. Default to AI-native tools: \
+   RAG pipelines (vector stores like ChromaDB or pgvector, embedding models, chunking), \
+   LLM agents (PydanticAI, function calling, tool use), evaluation pipelines \
+   (LLM-as-judge, test datasets), and observability (Logfire, LangSmith, or similar). \
+   Do NOT default to a generic web app stack for AI engineers — that signals "I took \
+   a tutorial" not "I can build AI systems."
+
+   **Data Engineering:** Pipeline and orchestration tools: dbt, Airflow/Kestra, \
+   BigQuery or PostgreSQL, streaming if relevant (Kafka), infrastructure as code.
+
+   **Analytics / BI:** SQL, transformation tools, dashboarding (Streamlit), \
+   data modeling, scheduled reporting pipelines.
+
+   **General / Beginner:** Python, a simple database (SQLite or PostgreSQL), \
+   a lightweight framework (Streamlit or FastAPI), and one or two libraries \
+   relevant to their problem. Keep it achievable for a solo builder in 4-6 weeks.
+
+6. **When generating the project card**, the PROCESSING section must only reference \
    tools the user actually knows or is actively learning. Never suggest technologies \
    they haven't mentioned unless you explain why and confirm they're willing to learn it.
 
-6. **Scope guard**: If the suggested stack is getting too complex for 4-6 weeks of solo \
+7. **Scope guard**: If the suggested stack is getting too complex for 4-6 weeks of solo \
    work, say so. Flag things that are out of scope: custom model training from scratch, \
    Kubernetes, complex frontend frameworks, mobile apps — unless the user has explicit \
    experience with them.
@@ -273,7 +278,7 @@ If they're vague, tell them: "I need something more specific to work with."
 # ---------------------------------------------------------------------------
 
 model = GroqModel(
-    "qwen/qwen3.6-27b",
+    "llama-3.3-70b-versatile",
     provider=GroqProvider(api_key=GROQ_API_KEY),
 )
 
