@@ -121,6 +121,16 @@ def auth_page():
 # ---------------------------------------------------------------------------
 
 
+def format_session_transcript(messages: list[dict]) -> str:
+    """Format messages into a readable transcript for export."""
+    lines = []
+    for m in messages:
+        role = "User" if m["role"] == "user" else "Agent"
+        lines.append(f"{role}: {m['content']}")
+        lines.append("")
+    return "\n".join(lines)
+
+
 def session_picker():
     """Let the user resume an existing session or start a new one."""
     client = get_client()
@@ -182,6 +192,18 @@ def session_picker():
                     st.rerun()
 
     st.sidebar.markdown("---")
+
+    # Export current session
+    if "session_id" in st.session_state and st.session_state.get("messages"):
+        transcript = format_session_transcript(st.session_state.messages)
+        st.sidebar.download_button(
+            "📥 Export conversation",
+            data=transcript,
+            file_name=f"session_{st.session_state.session_id[:8]}.txt",
+            mime="text/plain",
+            use_container_width=True,
+        )
+
     if st.sidebar.button("🚪 Log out", use_container_width=True):
         try:
             sign_out(client)
