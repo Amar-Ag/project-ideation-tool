@@ -1,0 +1,434 @@
+[
+  {
+    "session_id": "13734282-e8c3-4948-960a-4573b30504c4",
+    "mode": "null",
+    "message_count": 25,
+    "has_card": true,
+    "criteria": {
+      "1": {
+        "name": "Problem Specificity",
+        "score": 2,
+        "reason": "It names a data scientist and"
+      },
+      "2": {
+        "name": "Project Concreteness",
+        "score": 3,
+        "reason": "The description specifies exact inputs, processing components (LLM for text\u2011to\u2011SQL, pandas, openpyxl, database driver), and the output (Excel workbook with pre\u2011built pivots and slicers), giving a developer a clear implementation roadmap without needing further clarification."
+      },
+      "3": {
+        "name": "Input/Processing/Output Completeness",
+        "score": 3,
+        "reason": "The conversation lists specific input sources (SQL warehouse, NL prompt), concrete processing tools and steps (Python, pandas, LLM API, openpyxl, drivers), and a detailed output artifact (structured Excel workbook with tabs, pivots, slicers)."
+      },
+      "4": {
+        "name": "Tech Stack Appropriateness",
+        "score": 2,
+        "reason": "The suggested stack adds LLM APIs and Excel automation libraries (e.g., openpyxl) that the user didn\u2019t mention, without explaining why they\u2019re needed, though the overall approach remains realistic for a solo 4\u20116\u2011week project."
+      },
+      "5": {
+        "name": "Success Metric Quality",
+        "score": 3,
+        "reason": "The metric specifies concrete, measurable targets (e.g., cutting response time from 30\u202fminutes to 30\u202fseconds and achieving 95\u202f% SQL accuracy) that directly address the identified rework and efficiency problem."
+      },
+      "6": {
+        "name": "Interview Readiness",
+        "score": 3,
+        "reason": "The project card provides a concise, personal interview one\u2011liner and explicitly explains why this solution is distinct from existing data\u2011chatbot tools."
+      },
+      "7": {
+        "name": "Question Discipline",
+        "score": 0,
+        "reason": ""
+      },
+      "8": {
+        "name": "Pushback Quality",
+        "score": 2,
+        "reason": "The bot pushed back on most vague answers (e.g., \u201cvaries\u201d), but let the initial vague reply \u201ci am not sure\u201d pass without demanding a concrete clarification."
+      },
+      "9": {
+        "name": "Lens Selection Logic",
+        "score": 3,
+        "reason": "The bot dynamically identified the user\u2019s pain (manual re\u2011slicing bottleneck) without enumerating lenses or naming them, and stopped once it had enough signal to propose tailored solutions."
+      },
+      "10": {
+        "name": "Idea Timing",
+        "score": 3,
+        "reason": "The assistant waited until the user confirmed the problem statement before proposing solution options or tech approaches."
+      },
+      "11": {
+        "name": "Synthesis Timing",
+        "score": 3,
+        "reason": "The bot synthesized a clear, concrete problem statement right after the user described the specific re\u2011slicing bottleneck, without lingering on vague or unnecessary questions."
+      }
+    },
+    "disqualifying": {
+      "D1": false,
+      "D2": false,
+      "D3": false,
+      "D4": false,
+      "D5": false
+    },
+    "total": 27,
+    "verdict": "Acceptable"
+  },
+  {
+    "session_id": "b753bc66-b434-4a57-bcf4-0b39b319ec2f",
+    "mode": "domain",
+    "message_count": 13,
+    "has_card": true,
+    "criteria": {
+      "1": {
+        "name": "Problem Specificity",
+        "score": 3,
+        "reason": "The statement names a clear WHO (pharma and research teams), describes the specific pain (manual, error\u2011prone patient matching across fragmented data), situates it in a concrete CONTEXT (clinical trial recruitment), and explains the WHY (significant delays and high costs)."
+      },
+      "2": {
+        "name": "Project Concreteness",
+        "score": 3,
+        "reason": "The project card details specific inputs, processing logic, technologies, and expected outputs, giving a developer enough concrete information to start building immediately."
+      },
+      "3": {
+        "name": "Input/Processing/Output Completeness",
+        "score": 3,
+        "reason": "The project card lists concrete input artifacts (synthetic PostgreSQL/SQLite database and JSON/CSV criteria), specific processing steps with named tools (Python and SQL), and a detailed output format (CSV/PDF report with match reasoning)."
+      },
+      "4": {
+        "name": "Tech Stack Appropriateness",
+        "score": 3,
+        "reason": "The suggested stack uses only Python and SQL (PostgreSQL/SQLite), which the user already knows, and the project scope is realistic for a solo 4\u20116\u2011week effort."
+      },
+      "5": {
+        "name": "Success Metric Quality",
+        "score": 3,
+        "reason": "The metric specifies concrete, measurable targets (100\u202f% accuracy on exclusion criteria and reducing manual review time from days to seconds), directly addressing the project's goal of efficient patient matching."
+      },
+      "6": {
+        "name": "Interview Readiness",
+        "score": 3,
+        "reason": "The project card provides a concise, personal interview one\u2011liner and clearly explains why this implementation is distinct from existing solutions."
+      },
+      "7": {
+        "name": "Question Discipline",
+        "score": 0,
+        "reason": ""
+      },
+      "8": {
+        "name": "Pushback Quality",
+        "score": 3,
+        "reason": "The bot consistently probed for specifics (domain, role, company type, personal experience, tech stack) and never moved forward on a vague reply without requesting clarification."
+      },
+      "9": {
+        "name": "Lens Selection Logic",
+        "score": 3,
+        "reason": "Mode 2 \u2014 lens selection not applicable"
+      },
+      "10": {
+        "name": "Idea Timing",
+        "score": 1,
+        "reason": "The bot presented concrete project ideas (the three AI problems) before the user had established any problem statement, violating the timing rule."
+      },
+      "11": {
+        "name": "Synthesis Timing",
+        "score": 3,
+        "reason": "The bot waited until the user selected a specific problem (clinical trial patient matching) and provided concrete technical details (Python and SQL) before delivering a detailed problem statement synthesis."
+      }
+    },
+    "disqualifying": {
+      "D1": false,
+      "D2": false,
+      "D3": false,
+      "D4": false,
+      "D5": false
+    },
+    "total": 28,
+    "verdict": "Strong"
+  },
+  {
+    "session_id": "9dfd960e-5d94-4c9b-8e42-fd50915f9b6c",
+    "mode": "both",
+    "message_count": 17,
+    "has_card": true,
+    "criteria": {
+      "1": {
+        "name": "Problem Specificity",
+        "score": 2,
+        "reason": "The statement identifies a clear role, pain, and context, but lacks concrete scale or quantification (e.g., number of people affected or time spent), making it less fully specific."
+      },
+      "2": {
+        "name": "Project Concreteness",
+        "score": 3,
+        "reason": "The project description specifies exact inputs, processing steps, output format, and a concrete tech stack, giving a developer enough detail to begin implementation without further clarification."
+      },
+      "3": {
+        "name": "Input/Processing/Output Completeness",
+        "score": 3,
+        "reason": "The conversation lists concrete, specific data sources (emails, PDFs, tier definitions), tools/methods (Python, LangChain, PostgreSQL, Streamlit), and concrete deliverables (a Streamlit dashboard with extracted data, validation flags, and a ready-to-run SQL script)."
+      },
+      "4": {
+        "name": "Tech Stack Appropriateness",
+        "score": 0,
+        "reason": ""
+      },
+      "5": {
+        "name": "Success Metric Quality",
+        "score": 3,
+        "reason": "The metric specifies exact, measurable targets (time reduction from 3\u202fhours to 10\u202fminutes and zero manual entry errors) that directly address the stated commission\u2011calculation problem."
+      },
+      "6": {
+        "name": "Interview Readiness",
+        "score": 3,
+        "reason": "The project card provides a concrete, personal interview one\u2011liner and explains why this specific solution matters compared to existing approaches."
+      },
+      "7": {
+        "name": "Question Discipline",
+        "score": 0,
+        "reason": ""
+      },
+      "8": {
+        "name": "Pushback Quality",
+        "score": 2,
+        "reason": "The bot let two vague answers (\u201cboth\u201d and \u201cyes\u201d) pass without demanding clarification, but otherwise it generally pushed for specifics."
+      },
+      "9": {
+        "name": "Lens Selection Logic",
+        "score": 3,
+        "reason": "The bot implicitly selected relevant lenses (e.g., data friction) based on the user\u2019s context, stopped after gathering enough signal, and never exposed or enumerated the lens framework."
+      },
+      "10": {
+        "name": "Idea Timing",
+        "score": 1,
+        "reason": "The bot presented solution angles and a tech stack before the user confirmed the drafted problem statement, violating the rule against early idea suggestions."
+      },
+      "11": {
+        "name": "Synthesis Timing",
+        "score": 3,
+        "reason": "The bot waited until the user provided detailed, concrete pain points about the commission\u2011calculation workflow before drafting a focused problem statement, resulting in a well\u2011timed synthesis."
+      }
+    },
+    "disqualifying": {
+      "D1": false,
+      "D2": false,
+      "D3": false,
+      "D4": false,
+      "D5": false
+    },
+    "total": 23,
+    "verdict": "Acceptable"
+  },
+  {
+    "session_id": "f8018245-29a0-4690-8bc7-7ae22359fbcd",
+    "mode": "both",
+    "message_count": 19,
+    "has_card": true,
+    "criteria": {
+      "1": {
+        "name": "Problem Specificity",
+        "score": 3,
+        "reason": "The problem statement identifies a specific WHO (hospital clinics and coding staff), a specific WHAT (high\u2011volume claim denials and lack of auditability), a clear CONTEXT (insurance rules hidden in PDFs versus structured claim data in revenue\u2011cycle operations), and a specific WHY (the disconnection makes it impossible to quickly audit or understand rejections)."
+      },
+      "2": {
+        "name": "Project Concreteness",
+        "score": 3,
+        "reason": "The description specifies exact inputs, processing components, technologies, and output format, giving a developer enough detail to start implementation without further clarification."
+      },
+      "3": {
+        "name": "Input/Processing/Output Completeness",
+        "score": 3,
+        "reason": "The project card lists concrete input sources (specific PDFs and synthetic CSV/SQL data), detailed processing tools and steps (Python, SQL, PyPDF/pdfplumber, ChromaDB, LLM API), and a clearly defined output (a Streamlit dashboard with rule highlighting and audit notes)."
+      },
+      "4": {
+        "name": "Tech Stack Appropriateness",
+        "score": 2,
+        "reason": "The suggested stack is appropriate and realistic, but it adds tools (e.g., ChromaDB, LLM API, Streamlit) that the user didn\u2019t mention knowing and provides no justification for their inclusion."
+      },
+      "5": {
+        "name": "Success Metric Quality",
+        "score": 3,
+        "reason": "The metric specifies a concrete, measurable target (\u226590% accuracy in identifying the correct PDF text for test claims) that directly reflects the project's audit\u2011and\u2011explain objective."
+      },
+      "6": {
+        "name": "Interview Readiness",
+        "score": 3,
+        "reason": "The project card provides a concrete, personal interview one\u2011liner and explicitly explains why this version is valuable compared to existing solutions."
+      },
+      "7": {
+        "name": "Question Discipline",
+        "score": 0,
+        "reason": ""
+      },
+      "8": {
+        "name": "Pushback Quality",
+        "score": 1,
+        "reason": "The bot accepted several vague user replies (e.g., \u201cboth\u201d, \u201cyes very personalized business rules\u2026\u201d, \u201ci think they both did a little\u201d) without demanding concrete examples or further clarification."
+      },
+      "9": {
+        "name": "Lens Selection Logic",
+        "score": 3,
+        "reason": "The bot selected relevant, user\u2011specific lenses (friction, manual repetition, unstructured\u2011to\u2011structured conversion) without naming them or following a fixed order, and stopped once it had enough insight."
+      },
+      "10": {
+        "name": "Idea Timing",
+        "score": 0,
+        "reason": ""
+      },
+      "11": {
+        "name": "Synthesis Timing",
+        "score": 3,
+        "reason": "The bot gathered specific details about the PDF\u2011based contract rules and the manual Excel calculations before presenting concrete problem statements, indicating synthesis at the optimal point."
+      }
+    },
+    "disqualifying": {
+      "D1": false,
+      "D2": false,
+      "D3": false,
+      "D4": false,
+      "D5": false
+    },
+    "total": 24,
+    "verdict": "Acceptable"
+  },
+  {
+    "session_id": "d1d2de5f-2bc6-4deb-a149-89c6428393bf",
+    "mode": "personal",
+    "message_count": 19,
+    "has_card": true,
+    "criteria": {
+      "1": {
+        "name": "Problem Specificity",
+        "score": 3,
+        "reason": "The statement names a clear WHO (EdTech founders and content creators), a precise WHAT (manual rewriting of generic AI\u2011generated exam questions and crafting distractors), a concrete CONTEXT (scaling course creation/exam quality), and a WHY (LLMs default to generic knowledge)."
+      },
+      "2": {
+        "name": "Project Concreteness",
+        "score": 3,
+        "reason": "The description outlines precise functionality (question generation, difficulty verification, distractor editing) and a concrete tech stack (Python\u202f+\u202fStreamlit, LlamaIndex, SQLite), giving a developer enough detail to start building immediately."
+      },
+      "3": {
+        "name": "Input/Processing/Output Completeness",
+        "score": 2,
+        "reason": "The assistant names specific processing tools (LlamaIndex, Streamlit, SQLite) and concrete output artifacts (exam questions, flagged items, distractors, chatbot), but the input description remains vague, only referring to generic \u201ccourse materials\u201d without naming concrete data sources."
+      },
+      "4": {
+        "name": "Tech Stack Appropriateness",
+        "score": 2,
+        "reason": "The suggested Python\u2011first stack (Streamlit, LlamaIndex, SQLite) is appropriate and realistic for a solo 4\u20116\u2011week project, but it introduces tools the user didn\u2019t mention knowing, without explicit justification."
+      },
+      "5": {
+        "name": "Success Metric Quality",
+        "score": 1,
+        "reason": "No success metric was provided or defined in the conversation, making it vague, unmeasurable, and missing."
+      },
+      "6": {
+        "name": "Interview Readiness",
+        "score": 1,
+        "reason": "The conversation hasn\u2019t produced a concise, personal one\u2011liner or a clear \u201cwhy my version matters\u201d statement, so the project lacks a strong interview\u2011ready angle."
+      },
+      "7": {
+        "name": "Question Discipline",
+        "score": 0,
+        "reason": ""
+      },
+      "8": {
+        "name": "Pushback Quality",
+        "score": 1,
+        "reason": "The bot accepted multiple vague user replies (e.g., \u201ci already know what i want\u201d and \u201ci do not have specific preferences\u201d) without demanding concrete details, so it did not consistently push back on vagueness."
+      },
+      "9": {
+        "name": "Lens Selection Logic",
+        "score": 3,
+        "reason": "The bot implicitly applied relevant lenses (personal friction, verification bottleneck, manual rewrite/distractor work) tailored to the user\u2019s context, never enumerated or named the lens framework, and stopped once it had enough signal."
+      },
+      "10": {
+        "name": "Idea Timing",
+        "score": 3,
+        "reason": "The assistant only presented solution angles and tech\u2011stack recommendations after the user had clearly stated the problem, never suggesting ideas prematurely."
+      },
+      "11": {
+        "name": "Synthesis Timing",
+        "score": 3,
+        "reason": "The bot waited until the user identified concrete pain points (rewriting questions and crafting distractors) before presenting a synthesized problem statement, which is the right moment."
+      }
+    },
+    "disqualifying": {
+      "D1": false,
+      "D2": false,
+      "D3": false,
+      "D4": false,
+      "D5": false
+    },
+    "total": 22,
+    "verdict": "Acceptable"
+  },
+  {
+    "session_id": "af5ef08e-4397-40fb-8471-560d987056ea",
+    "mode": "personal",
+    "message_count": 25,
+    "has_card": true,
+    "criteria": {
+      "1": {
+        "name": "Problem Specificity",
+        "score": 2,
+        "reason": "The problem statement identifies the general domain and some context (global workplace conflict over credit) but does not specify a concrete who, precise situation, or scale, so it lacks full specificity."
+      },
+      "2": {
+        "name": "Project Concreteness",
+        "score": 2,
+        "reason": "The description outlines the overall idea, major components, and a tech stack, but remains high\u2011level and vague about concrete system architecture, data flows, and exact implementation details, so a developer would still need clarification."
+      },
+      "3": {
+        "name": "Input/Processing/Output Completeness",
+        "score": 1,
+        "reason": "The Input, Processing, and Output sections only mention generic categories (e.g., \u201cvoice interactions,\u201d \u201cNLP and machine learning algorithms,\u201d \u201cpersonalized coaching\u201d) without naming specific data sources, tools, or artifacts, resulting in partial or failing completeness for all three components."
+      },
+      "4": {
+        "name": "Tech Stack Appropriateness",
+        "score": 1,
+        "reason": "The suggestion lists numerous unrelated services and libraries without tailoring to the user\u2019s knowledge or providing clear guidance, making it over\u2011engineered and unsuitable."
+      },
+      "5": {
+        "name": "Success Metric Quality",
+        "score": 2,
+        "reason": "The metric points to the right outcomes (less escalation, higher satisfaction, more confidence) but does not define concrete, measurable targets or methods to assess them."
+      },
+      "6": {
+        "name": "Interview Readiness",
+        "score": 2,
+        "reason": "The provided interview line is a generic description of the project without a personal anecdote or a clear statement of why this particular version is unique compared to existing solutions."
+      },
+      "7": {
+        "name": "Question Discipline",
+        "score": 0,
+        "reason": ""
+      },
+      "8": {
+        "name": "Pushback Quality",
+        "score": 1,
+        "reason": "When the user replied \u201cboth\u201d to a request for specific details, the bot accepted it without probing for concrete examples, showing a lack of pushback on vague answers."
+      },
+      "9": {
+        "name": "Lens Selection Logic",
+        "score": 1,
+        "reason": "The bot explicitly referenced a lens (\u201cfriction lens\u201d) to the user, making the internal lens framework visible."
+      },
+      "10": {
+        "name": "Idea Timing",
+        "score": 0,
+        "reason": ""
+      },
+      "11": {
+        "name": "Synthesis Timing",
+        "score": 2,
+        "reason": "The bot generated a problem statement after only one vague example, which was premature, though it later refined the scope with additional user input."
+      }
+    },
+    "disqualifying": {
+      "D1": false,
+      "D2": false,
+      "D3": false,
+      "D4": false,
+      "D5": false
+    },
+    "total": 14,
+    "verdict": "Needs rework"
+  }
+]
