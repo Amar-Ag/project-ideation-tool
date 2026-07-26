@@ -120,11 +120,17 @@ The test: Could you run an experiment and definitively say "pass" or "fail" on t
         "part": "conversation",
         "prompt": """Score the bot's question discipline across the FULL conversation.
 
-3 = Every bot turn asks one question, occasionally two when closely related. Never more.
-2 = Mostly one question per turn, but one or two turns have 3+ questions.
-1 = Multiple turns with bullet-pointed question lists — behaving like a form, not a conversation.
+Look at EVERY assistant turn. Count how many distinct questions each turn asks.
+A question is any sentence that asks the user for information (ends with ? or is a request for input).
 
-Count the questions in each bot turn. If any turn has 3 or more distinct questions, it cannot score 3.""",
+3 = Every bot turn asks one question, occasionally two when closely related. No turn has 3+ questions.
+2 = Mostly one question per turn, but one or two turns have 3+ distinct questions.
+1 = Multiple turns have 3+ questions listed — the bot behaves like a form, not a conversation.
+
+You MUST provide a score. Do not leave this blank.
+Respond with:
+Score: [1, 2, or 3]
+Reason: [Which specific turns had too many questions, or confirm that discipline was maintained]""",
     },
     {
         "id": 8,
@@ -161,7 +167,16 @@ Note: If the user arrived with a specific project idea, the bot may skip traditi
 2 = One minor hint toward a solution slipped through early, but didn't derail problem discovery.
 1 = Bot suggested a project idea, solution angle, or tech stack during the background/exploration phase, before a problem statement was established.
 
-This is a DISQUALIFYING failure if score is 1. The bot must never suggest ideas before the problem is confirmed.""",
+IMPORTANT MODE EXCEPTIONS:
+- In Mode 2 (domain/job targeting), the bot uses Tavily research to present 3 specific domain problems for the user to choose from. This is the DISCOVERY step, NOT premature idea suggestion. Presenting researched problems in Mode 2 is correct behavior and should score 3.
+- In "both" mode, after the personal problem is confirmed, the bot asks about target domain and then uses Tavily to filter solutions toward that domain. This is also correct behavior.
+- Only score 1 if the bot suggested a COMPLETE project idea, solution angle, or tech stack before ANY problem discovery happened.
+
+This is a DISQUALIFYING failure if score is 1.
+You MUST provide a score. Do not leave this blank.
+Respond with:
+Score: [1, 2, or 3]
+Reason: [Cite the specific turn where ideas appeared, or confirm they came after problem confirmation]""",
     },
     {
         "id": 11,
@@ -175,16 +190,18 @@ This is a DISQUALIFYING failure if score is 1. The bot must never suggest ideas 
     },
 ]
 
-DISQUALIFYING_CHECKS = """Check for these disqualifying failures. Return true/false for each:
+DISQUALIFYING_CHECKS = """Check the conversation for these 5 disqualifying failures. For each one, answer true if the failure IS present, or false if it is NOT present.
 
-D1: Does the problem statement have NO specific WHO? (just "people" or "users")
-D2: Is the success metric unmeasurable? ("users will find it useful", "improves productivity")
-D3: Did the bot suggest a project idea, solution angle, or tech stack BEFORE the problem statement was established and confirmed?
-D4: Does the tech stack require custom model training from scratch?
-D5: Is the Input OR Output section missing or too vague to build from?
+D1: Does the FINAL problem statement have NO specific WHO? (just generic "people" or "users" rather than a specific role like "data analysts" or "nurses")
+D2: Is the success metric unmeasurable? (vague like "users will find it useful" or "improves productivity" rather than a specific number or test)
+D3: Did the bot suggest a COMPLETE project idea, solution angle, or tech stack BEFORE any problem statement was established and confirmed by the user? (Note: In Mode 2, presenting researched domain problems is NOT premature — that IS the discovery step)
+D4: Does the tech stack require custom model training from scratch? (fine-tuning an existing model is OK, training from scratch is not)
+D5: Is the Input OR Output section of the project card missing entirely or too vague to start building from? (e.g., just "data" or "insights")
 
-Return JSON: {"D1": true/false, "D2": true/false, "D3": true/false, "D4": true/false, "D5": true/false}
-Only return the JSON, nothing else."""
+If no project card was generated (incomplete session), answer false for all.
+
+You MUST respond with ONLY this JSON, no other text:
+{"D1": false, "D2": false, "D3": false, "D4": false, "D5": false}"""
 
 
 # ---------------------------------------------------------------------------
@@ -373,6 +390,27 @@ def evaluate_session(client: Groq, session_id: str, session_data: dict) -> dict:
         response = call_judge(client, system, user_prompt)
         score = parse_score(response)
 
+        # If score is 0, the judge likely returned an unparseable response.
+        # Retry once with a very direct prompt.
+        if score == 0:
+            print("(retrying)...", end=" ", flush=True)
+            time.sleep(2)
+            retry_prompt = (
+                f"Score this conversation on '{name}' using ONLY 1, 2, or 3.\n\n"
+                f"{criterion['prompt']}\n\n"
+                f"## Conversation\n\n{transcript}\n\n"
+                f"Reply with EXACTLY this format, nothing else:\n"
+                f"Score: [number]\n"
+                f"Reason: [one sentence]"
+            )
+            response = call_judge(client, system, retry_prompt)
+            score = parse_score(response)
+            if score == 0:
+                # Still failed — log the raw response for debugging
+                print(f"\n  WARNING: Could not parse score for C{cid}")
+                print(f"  Raw response: {response[:300]}")
+                print(f"  ", end="", flush=True)
+
         # Extract reason
         reason = ""
         for line in response.split("\n"):
@@ -393,12 +431,28 @@ def evaluate_session(client: Groq, session_id: str, session_data: dict) -> dict:
         time.sleep(1)  # Rate limit spacing
 
     result["total"] = total
-    max_score = 33
+
+    # Count how many criteria were actually scored
+    scored_count = sum(
+        1 for c in result["criteria"].values() if c.get("score") is not None
+    )
+    max_score = scored_count * 3 if scored_count > 0 else 33
 
     # Determine verdict
     any_dq = any(result["disqualifying"].get(f"D{i}", False) for i in range(1, 6))
     if any_dq:
         result["verdict"] = "Disqualifying failure"
+    elif not has_card:
+        # Incomplete session — score only conversation quality
+        conv_score = sum(
+            c.get("score", 0)
+            for cid, c in result["criteria"].items()
+            if c.get("score") is not None
+        )
+        conv_max = scored_count * 3
+        result["verdict"] = (
+            f"Incomplete ({conv_score}/{conv_max} on conversation quality)"
+        )
     elif total >= 28:
         result["verdict"] = "Strong"
     elif total >= 22:
@@ -431,8 +485,11 @@ def results_to_markdown(results: list[dict]) -> str:
         sid = r["session_id"][:8]
         dq_flags = [k for k, v in r["disqualifying"].items() if v]
         dq_str = ", ".join(dq_flags) if dq_flags else "None"
+        # Show proper denominator based on scored criteria
+        scored = sum(1 for c in r["criteria"].values() if c.get("score") is not None)
+        max_score = scored * 3 if scored > 0 else 33
         lines.append(
-            f"| {i} | {sid} | {r['mode']} | {r['total']}/33 | {r['verdict']} | {dq_str} |"
+            f"| {i} | {sid} | {r['mode']} | {r['total']}/{max_score} | {r['verdict']} | {dq_str} |"
         )
 
     lines.append("")
@@ -446,7 +503,7 @@ def results_to_markdown(results: list[dict]) -> str:
         lines.append("|---|-----------|-------|--------|")
 
         for cid in range(1, 12):
-            c = r["criteria"].get(cid, {})
+            c = r["criteria"].get(cid, r["criteria"].get(str(cid), {}))
             name = c.get("name", "?")
             score = c.get("score", "N/A")
             reason = c.get("reason", "")[:100]
