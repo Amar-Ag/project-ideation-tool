@@ -118,19 +118,7 @@ The test: Could you run an experiment and definitively say "pass" or "fail" on t
         "id": 7,
         "name": "Question Discipline",
         "part": "conversation",
-        "prompt": """Score the bot's question discipline across the FULL conversation.
-
-Look at EVERY assistant turn. Count how many distinct questions each turn asks.
-A question is any sentence that asks the user for information (ends with ? or is a request for input).
-
-3 = Every bot turn asks one question, occasionally two when closely related. No turn has 3+ questions.
-2 = Mostly one question per turn, but one or two turns have 3+ distinct questions.
-1 = Multiple turns have 3+ questions listed — the bot behaves like a form, not a conversation.
-
-You MUST provide a score. Do not leave this blank.
-Respond with:
-Score: [1, 2, or 3]
-Reason: [Which specific turns had too many questions, or confirm that discipline was maintained]""",
+        "prompt": "SPECIAL_C7",
     },
     {
         "id": 8,
@@ -380,6 +368,18 @@ def evaluate_session(client: Groq, session_id: str, session_data: dict) -> dict:
             total += 3
             continue
 
+        # Special case: C7 is scored by code, not the judge LLM
+        if criterion["prompt"] == "SPECIAL_C7":
+            c7_result = score_question_discipline(session_data["messages"])
+            result["criteria"][cid] = {
+                "name": name,
+                "score": c7_result["score"],
+                "reason": c7_result["reason"],
+            }
+            total += c7_result["score"]
+            print(f"{c7_result['score']}/3")
+            continue
+
         user_prompt = (
             f"## Criterion: {name}\n\n"
             f"{criterion['prompt']}\n\n"
@@ -516,6 +516,36 @@ def results_to_markdown(results: list[dict]) -> str:
         lines.append("")
 
     return "\n".join(lines)
+
+
+def score_question_discipline(messages: list[dict]) -> dict:
+    """
+    Score C7 (Question Discipline) using code-based question counting.
+    Counts '?' per assistant turn, then scores based on the pattern.
+    """
+    turn_counts = []
+    for m in messages:
+        if m["role"] == "assistant":
+            q_count = m["content"].count("?")
+            turn_counts.append(q_count)
+
+    if not turn_counts:
+        return {"score": 2, "reason": "No assistant messages found"}
+
+    turns_with_3_plus = sum(1 for c in turn_counts if c >= 3)
+    total_turns = len(turn_counts)
+
+    if turns_with_3_plus == 0:
+        score = 3
+        reason = f"All {total_turns} bot turns had fewer than 3 questions each"
+    elif turns_with_3_plus <= 2:
+        score = 2
+        reason = f"{turns_with_3_plus} of {total_turns} turns had 3+ questions"
+    else:
+        score = 1
+        reason = f"{turns_with_3_plus} of {total_turns} turns had 3+ questions — form-like behavior"
+
+    return {"score": score, "reason": reason}
 
 
 def load_existing_results(output_path: str) -> list[dict]:
